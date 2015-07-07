@@ -1,0 +1,7 @@
+curl -X POST -H "Content-Type:application/json" -d "{'deviceName':'spine1','deviceType':'Spine','datapathId':'0000001432086945','ofcIp':'localhost:28080'}" "http://localhost:18080/ofpm/device_mng/"  
+curl -X POST -H "Content-Type:application/json" -d "{'deviceName':'leaf1','deviceType':'Leaf','datapathId':'0000d6611643814c','ofcIp':'localhost:28080'}" "http://localhost:18080/ofpm/device_mng/"  
+curl -X POST -H "Content-Type:application/json" -d "{'deviceName':'leaf2','deviceType':'Leaf','datapathId':'0000463203ebe642','ofcIp':'localhost:28080'}" "http://localhost:18080/ofpm/device_mng/"  
+curl -X POST -H "Content-Type:application/json" -d "{'deviceName':'host1','deviceType':'Server','datapathId':'','ofcIp':''}" "http://localhost:18080/ofpm/device_mng/"  
+curl -X POST -H "Content-Type:application/json" -d "{'deviceName':'host2','deviceType':'Server','datapathId':'','ofcIp':''}" "http://localhost:18080/ofpm/device_mng/"  
+curl -X POST -H "Content-Type:application/json" -d "{'deviceName':'host3','deviceType':'Server','datapathId':'','ofcIp':''}" "http://localhost:18080/ofpm/device_mng/"  
+curl -X POST -H "Content-Type:application/json" -d "{'deviceName':'host4','deviceType':'Server','datapathId':'','ofcIp':''}" "http://localhost:18080/ofpm/device_mng/"  
