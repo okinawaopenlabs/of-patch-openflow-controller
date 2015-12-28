@@ -36,6 +36,10 @@ def ofp_version(switch, protocols):
     command = 'ovs-vsctl set Bridge %s protocols=%s' % (switch,protocols_str)
     switch.cmd(command)
 
+def l2_mode(switch):
+    command = 'ovs-ofctl add-flow %s actions=normal -O OpenFlow13' % (switch)
+    switch.cmd(command)
+
 def myTopo():
     net = Mininet(switch=OVSKernelSwitch)
     net.addController('controller01',controller=RemoteController,ip=ofc_ip, port=ofc_port)
@@ -126,6 +130,11 @@ def myTopo():
     ofp_version(s10, ['OpenFlow13'])
     ofp_version(s11, ['OpenFlow13'])
     ofp_version(s12, ['OpenFlow13'])
+
+    l2_mode(s1)
+    l2_mode(s2)
+    l2_mode(s3)
+    l2_mode(s4)
 
     CLI(net)
     net.stop()
