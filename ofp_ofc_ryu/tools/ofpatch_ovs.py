@@ -67,6 +67,7 @@ def myTopo():
     h3 = net.addHost('h_kane3')
     h4 = net.addHost('h_its1')
     h5 = net.addHost('h_jic1')
+    hx = net.addHost('h_kane_x')
 
     # Define Links
     # Note:
@@ -83,6 +84,7 @@ def myTopo():
     net.addLink(s9, h2)
 
     net.addLink(s10, h3)
+    net.addLink(s10, hx)
 
     net.addLink(s11, h4)
 
