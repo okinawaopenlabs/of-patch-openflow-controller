@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Nippon Telegraph and Telephone Corporation.
+ # Copyright (C) 2012 Nippon Telegraph and Telephone Corporation.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ OFP_VERSION_13 = ofproto_v1_3.OFP_VERSION
 OFP_VERSION_10 = ofproto_v1_0.OFP_VERSION
 CURRENT_OFP_VERSION = OFP_VERSION_13
 
-from api.service import SwitchController
+#from api.service import SwitchController
 from common import conf, log, define
 from client.ofpm import OfpmClient
 from stats.stats import OfpStats
@@ -563,6 +563,7 @@ class StatsController(ControllerBase):
 
         try:
             flow = ast.literal_eval(req.body)
+            LOG.info('!!!!!!!!!!!!!!!!!!mod_flow_entry!!!!!!!!!!!!!!!!!!!!!')
 
         except SyntaxError:
             LOG.debug('invalid syntax %s', req.body)
@@ -810,6 +811,9 @@ class RestStatsApi(app_manager.RyuApp):
         self.data = {}
         self.data['dpset'] = self.dpset
         self.data['waiters'] = self.waiters
+ 
+        self.ofpmClient = OfpmClient()
+
         mapper = wsgi.mapper
 
         wsgi.registory['StatsController'] = self.data
@@ -971,6 +975,9 @@ class RestStatsApi(app_manager.RyuApp):
         msg = ev.msg
         dp = msg.datapath
 
+#        LOG.info("self.ofpmClient.init_flow(" + str(dp.id) + ")")
+#        self.ofpmClient.init_flow(dp.id)
+
         if dp.id not in self.waiters:
             return
         if msg.xid not in self.waiters[dp.id]:
@@ -981,62 +988,11 @@ class RestStatsApi(app_manager.RyuApp):
         del self.waiters[dp.id][msg.xid]
         lock.set()
 
+    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
+    def _switch_features_handler(self, ev):
+        msg = ev.msg
+        dp = msg.datapath
 
-class OfPatchOfc(app_manager.RyuApp):
-        OFP_VERSIONS = [CURRENT_OFP_VERSION]
-        _CONTEXTS = { 'dpset':dpset.DPSet, 'wsgi':WSGIApplication, }
-
-        def __init__(self, *args, **kwargs):
-                LOG.debug("START")
-                LOG.debug(" CURRENT_OFP_VERSION = " + str(CURRENT_OFP_VERSION) + ", Note! ofproto_v1_x.OFP_VERSION")
-                LOG.debug(" OF-PATCH CONTROLLER VERSION = " + str(define.MAJOR_VERSION) + "." + str(define.MINOR_VERSION) + "." + str(define.BUILD_VERSION))
-
-                super(OfPatchOfc, self).__init__(*args, **kwargs)
-                self.switches = {}
-                wsgi = kwargs['wsgi']
-                wsgi.register(SwitchController, {define.OFP_OFC_INSTANCE_NAME : self})
-
-                self.ofpmClient = OfpmClient()
-
-                self.ofpStats = OfpStats()
-
-                LOG.debug("END")
-
-        @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
-        def _switch_features_handler(self, ev):
-                LOG.debug("START")
-
-                datapath = ev.msg.datapath
-                self.switches[datapath.id] = datapath
-                LOG.info('Switch is joined : ' + "{:0>16x}".format(datapath.id))
-
-                # set table-miss flow entry. Default:All Drop
-                ofproto = datapath.ofproto
-                parser = datapath.ofproto_parser
-                match = parser.OFPMatch()
-                actions = []
-                self.add_flow(datapath, define.FLOW_PRIORITY_DROP, define.FLOW_IDLE_TIMEOUT_NO_LIMIT, define.FLOW_HARD_TIMEOUT_NO_LIMIT, match, actions);
-
-                self.ofpmClient.init_flow(datapath.id)
-
-                LOG.debug("END")
-
-        def add_flow(self, datapath, priority, idle_timeout, hard_timeout, match, actions):
-                LOG.debug("START")
-
-                LOG.debug("datapath.id = " + "{:0>16x}".format(datapath.id) + ", priority = " + str(priority) + ", idle_timeout = " + str(idle_timeout) + ", hard_timeout = " + str(hard_timeout))
-                LOG.debug("match = " + str(match))
-                LOG.debug("actions = " + str(actions))
-
-                ofproto = datapath.ofproto
-                parser = datapath.ofproto_parser
-                if CURRENT_OFP_VERSION == OFP_VERSION_10:
-                        mod = parser.OFPFlowMod(datapath=datapath, match=match, cookie=0, command=ofproto.OFPFC_ADD, idle_timeout=0, hard_timeout=0, priority=priority, flags=ofproto.OFPFF_SEND_define.FLOW_REM, actions=actions)
-                else:
-                        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-                        mod = parser.OFPFlowMod(datapath, 0, 0, 0, ofproto.OFPFC_ADD,idle_timeout, hard_timeout, priority, 0xffffffff, ofproto.OFPP_ANY, 0xffffffff, 0, match, inst)
-
-                datapath.send_msg(mod)
-                LOG.debug("END")
-
+        LOG.info("self.ofpmClient.init_flow(" + str(dp.id) + ")")
+        self.ofpmClient.init_flow(dp.id)
 
