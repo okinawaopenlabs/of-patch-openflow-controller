@@ -27,7 +27,7 @@ class OfpmClient:
 
 	def init_flow(self, dpid):
 		header = {'Content-type':'application/json'}
-		body = {'datapathId':"{:0>16x}".format(dpid)}
+		body = {'datapathId':"0x" + "{:0>16x}".format(dpid)}
 		LOG.debug("body = " + str(body))
 		LOG.info("Request initFlow body = " + str(body))
 		res = unirest.post(CONF.ofpm_init_flow_url, headers=header, params=str(body), callback=self.__http_response__)
