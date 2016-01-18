@@ -988,6 +988,6 @@ class RestStatsApi(app_manager.RyuApp):
         msg = ev.msg
         dp = msg.datapath
 
-        LOG.info("Call ofpmClient.init_flow(0x" + "{:0>16x}".format(dpid) + ")")
+        LOG.info("Call ofpmClient.init_flow(0x" + "{:0>16x}".format(dp.id) + ")")
         self.ofpmClient.init_flow(dp.id)
 
