@@ -560,13 +560,14 @@ class StatsController(ControllerBase):
 
         try:
             flow = ast.literal_eval(req.body)
-            LOG.info('mod_flow_entry(%s)', str(req.body))
 
         except SyntaxError:
             LOG.debug('invalid syntax %s', req.body)
             return Response(status=400)
 
         dpid = flow.get('dpid')
+        dpid_hex = "0x" + "{:0>16x}".format(dpid)
+        LOG.info('mod_flow_entry(cmd=%s, dpid=%s, body=%s)',cmd ,dpid_hex , str(req.body))
 
         if type(dpid) == str and not dpid.isdigit():
             LOG.debug('invalid dpid %s', dpid)
