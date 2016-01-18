@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
-
 import json
 import ast
 from webob import Response
@@ -35,13 +33,12 @@ OFP_VERSION_13 = ofproto_v1_3.OFP_VERSION
 OFP_VERSION_10 = ofproto_v1_0.OFP_VERSION
 CURRENT_OFP_VERSION = OFP_VERSION_13
 
-#from api.service import SwitchController
 from common import conf, log, define
 from client.ofpm import OfpmClient
 from stats.stats import OfpStats
 
 GONFIG = conf.read_conf()
-LOG = logging.getLogger('ryu.app.ofctl_rest')
+LOG = log.getLogger('ryu.app.ofctl_rest')
 
 # supported ofctl versions in this restful app
 supported_ofctl = {
@@ -563,7 +560,7 @@ class StatsController(ControllerBase):
 
         try:
             flow = ast.literal_eval(req.body)
-            LOG.info('!!!!!!!!!!!!!!!!!!mod_flow_entry!!!!!!!!!!!!!!!!!!!!!')
+            LOG.info('mod_flow_entry(%s)', str(req.body))
 
         except SyntaxError:
             LOG.debug('invalid syntax %s', req.body)
@@ -975,9 +972,6 @@ class RestStatsApi(app_manager.RyuApp):
         msg = ev.msg
         dp = msg.datapath
 
-#        LOG.info("self.ofpmClient.init_flow(" + str(dp.id) + ")")
-#        self.ofpmClient.init_flow(dp.id)
-
         if dp.id not in self.waiters:
             return
         if msg.xid not in self.waiters[dp.id]:
@@ -993,6 +987,6 @@ class RestStatsApi(app_manager.RyuApp):
         msg = ev.msg
         dp = msg.datapath
 
-        LOG.info("self.ofpmClient.init_flow(" + str(dp.id) + ")")
+        LOG.info("Call ofpmClient.init_flow(0x" + "{:0>16x}".format(dpid) + ")")
         self.ofpmClient.init_flow(dp.id)
 
